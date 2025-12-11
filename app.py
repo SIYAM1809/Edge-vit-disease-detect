@@ -18,85 +18,75 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Custom CSS for Professional Green/White Theme with High Contrast
+# Custom CSS for Professional Green/White Theme with "Agile" Buttons
 st.markdown("""
     <style>
     /* Main Background & Default Text */
     .stApp {
         background-color: #FFFFFF;
-        color: #424242; /* Professional dark charcoal for high readability */
+        color: #424242;
         font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
     }
-    /* Headers - Dark Forest Green */
+    
+    /* Headers - Clean Dark Green */
     h1, h2, h3, h4, h5, h6 {
         color: #1B5E20 !important;
-        font-weight: 600;
-        letter-spacing: 0.02em;
+        font-weight: 700;
+        letter-spacing: -0.5px;
     }
-    /* Standard Paragraphs & Labels */
-    p, label, .stMarkdown, .stSelectbox label {
-        color: #424242 !important;
-        line-height: 1.6;
-    }
-    /* Captions and smaller details */
-    .stCaption {
-        color: #616161 !important;
-        font-size: 0.9em;
-    }
-    /* Primary Button - Agricultural Green */
+    
+    /* AGILE BUTTON STYLE - The Action Button */
+    /* Vibrant Green Gradient for high visibility */
     .stButton>button {
-        background-color: #2E7D32;
+        background: linear-gradient(45deg, #43A047, #2E7D32); 
         color: white;
         border-radius: 8px;
-        height: 3.2em;
+        height: 3.5em;
         width: 100%;
         border: none;
         font-weight: 700;
-        font-size: 1.1em;
+        font-size: 1.2em;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         transition: all 0.3s ease;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     }
+    
+    /* Hover Effect - Lift and Brighten */
     .stButton>button:hover {
-        background-color: #1B5E20;
-        box-shadow: 0 5px 10px rgba(0,0,0,0.2);
-        transform: translateY(-1px);
+        background: linear-gradient(45deg, #66BB6A, #43A047);
+        box-shadow: 0 6px 12px rgba(67, 160, 71, 0.3);
+        transform: translateY(-2px);
+        border: none;
     }
-    /* Info/Success/Warning Boxes - Themed Text */
+    
+    /* Active/Click Effect */
+    .stButton>button:active {
+        transform: translateY(1px);
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    /* Info/Success/Warning Boxes */
     .stSuccess, .stInfo {
-        background-color: #E8F5E9;
-        border-left: 6px solid #2E7D32;
+        background-color: #F1F8E9; /* Very Light Green */
+        border-left: 5px solid #43A047; /* Match Button Green */
         color: #1B5E20;
     }
     .stWarning {
-        background-color: #FFF3E0;
-        border-left: 6px solid #FF9800;
-        color: #BF360C;
+        background-color: #FFF8E1;
+        border-left: 5px solid #FFB300;
+        color: #E65100;
     }
     .stError {
         background-color: #FFEBEE;
-        border-left: 6px solid #D32F2F;
+        border-left: 5px solid #E53935;
         color: #B71C1C;
     }
+
     /* Sidebar Styling */
     section[data-testid="stSidebar"] {
-        background-color: #F1F8E9;
-        border-right: 1px solid #C8E6C9;
-    }
-    section[data-testid="stSidebar"] h1 {
-         color: #2E7D32 !important;
-    }
-    /* Make sidebar text sharper green */
-    section[data-testid="stSidebar"] p, 
-    section[data-testid="stSidebar"] li,
-    section[data-testid="stSidebar"] .stMarkdown {
-         color: #33691E !important;
-    }
-    /* File Uploader Area */
-    [data-testid='stFileUploader'] {
-        border: 2px dashed #A5D6A7;
         background-color: #FAFAFA;
-        padding: 20px;
-        border-radius: 10px;
+        border-right: 1px solid #E0E0E0;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -188,11 +178,11 @@ with st.sidebar:
     st.markdown("""
     ### **How to use:**
     1.  **Upload** a clear image of a crop leaf.
-    2.  Click the **'Diagnose'** button.
+    2.  Click the **'RUN DIAGNOSIS'** button.
     3.  View the **prediction** and AI **heatmap**.
     """)
     st.markdown("---")
-    st.caption("v1.1.0 Professional | Powered by MobileViT & PyTorch")
+    st.caption("v1.2.0 Agile Theme | Powered by MobileViT & PyTorch")
 
 # --- Main Content ---
 st.title("🌿 Intelligent Crop Disease Diagnosis")
@@ -226,7 +216,8 @@ with col_input:
         input_tensor = transform(image).unsqueeze(0)
         
         st.markdown("<br>", unsafe_allow_html=True) # Spacer
-        run_btn = st.button("🔍 Run Professional Diagnosis", type="primary")
+        # ACTION BUTTON
+        run_btn = st.button("🚀 RUN DIAGNOSIS", type="primary")
 
 # --- Inference Logic ---
 if uploaded_file and run_btn:
@@ -287,7 +278,7 @@ if uploaded_file and run_btn:
             
             # --- Display Visual ---
             st.markdown(
-                f'<div style="border-radius: 12px; overflow: hidden; border: 3px solid #{ "C8E6C9" if status_color=="success" else "FFE0B2" if status_color=="warning" else "FFCDD2" }; box-shadow: 0 4px 8px rgba(0,0,0,0.05); margin-top: 20px;">',
+                f'<div style="border-radius: 12px; overflow: hidden; border: 3px solid #{ "43A047" if status_color=="success" else "FFB300" if status_color=="warning" else "E53935" }; box-shadow: 0 4px 8px rgba(0,0,0,0.05); margin-top: 20px;">',
                 unsafe_allow_html=True
             )
             st.image(overlay, caption=caption, use_container_width=True)
