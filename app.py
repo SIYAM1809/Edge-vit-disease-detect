@@ -9,48 +9,45 @@ import timm
 import os
 
 # ==============================================================================
-# 1. CONFIGURATION & PROFESSIONAL GRADIENT THEME
+# 1. CONFIGURATION & GREEN GRADIENT THEME
 # ==============================================================================
 st.set_page_config(
     page_title="Edge-ViT Diagnosis",
     page_icon="🌿",
     layout="wide",
-    initial_sidebar_state="expanded"
+    initial_sidebar_state="collapsed"
 )
 
-# Custom CSS for Gradient Theme + High Contrast Text
+# Custom CSS for Green Gradient + Multi-Page Styling
 st.markdown("""
     <style>
-    /* 1. MAIN BACKGROUND: Blue-White Gradient */
+    /* 1. MAIN BACKGROUND: Green-White Gradient */
     .stApp {
-        background: linear-gradient(to bottom, #E3F2FD, #FFFFFF);
+        background: linear-gradient(to bottom, #E8F5E9, #FFFFFF);
         background-attachment: fixed;
     }
     
-    /* 2. TEXT VISIBILITY FIXED: Force Dark Colors */
+    /* 2. TEXT VISIBILITY: Force Dark Green/Charcoal */
     h1, h2, h3, h4, h5, h6 {
-        color: #0D47A1 !important; /* Professional Navy Blue Headers */
+        color: #1B5E20 !important; /* Dark Forest Green */
         font-family: 'Segoe UI', sans-serif;
         font-weight: 700;
-        text-shadow: 1px 1px 2px rgba(255,255,255,0.5); /* Slight glow for readability */
     }
     
-    p, label, .stMarkdown, li, .stCaption {
-        color: #263238 !important; /* Dark Charcoal for reading */
-        font-size: 1.05rem !important;
+    p, label, .stMarkdown, li, .stCaption, .stText {
+        color: #2E3B33 !important; /* Dark Charcoal */
+        font-size: 1.1rem !important;
         font-weight: 500;
     }
 
     /* 3. CARDS (Glassmorphism Effect) */
-    /* Used for Image Upload & Result Areas to make them pop */
-    .css-1r6slb0, .css-12oz5g7 { 
-        background-color: rgba(255, 255, 255, 0.85);
+    .css-1r6slb0, .stFileUploader, .element-container { 
+        background-color: rgba(255, 255, 255, 0.9);
         border-radius: 15px;
-        padding: 20px;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        padding: 10px;
     }
     
-    /* 4. AGILE BUTTON STYLE (Vibrant Green) */
+    /* 4. AGILE BUTTON STYLE */
     .stButton>button {
         background: linear-gradient(45deg, #43A047, #2E7D32); 
         color: white !important;
@@ -69,31 +66,26 @@ st.markdown("""
         background: linear-gradient(45deg, #66BB6A, #43A047);
         transform: translateY(-3px);
         box-shadow: 0 8px 20px rgba(46, 125, 50, 0.4);
-        color: white !important;
-    }
-
-    /* 5. SIDEBAR STYLING */
-    section[data-testid="stSidebar"] {
-        background-color: #F8FAFB; /* Very Light Grey/Blue */
-        border-right: 1px solid #CFD8DC;
-    }
-    section[data-testid="stSidebar"] p, section[data-testid="stSidebar"] li {
-        color: #37474F !important;
-        font-size: 0.95rem !important;
     }
     
-    /* 6. UPLOAD BOX STYLING */
-    [data-testid='stFileUploader'] {
-        background-color: rgba(255, 255, 255, 0.9);
-        border: 2px dashed #90CAF9;
-        border-radius: 12px;
-        padding: 20px;
+    /* 5. Custom Success/Error Boxes */
+    div.stSuccess {
+        border-left: 6px solid #2E7D32;
+        background-color: #F1F8E9;
+    }
+    div.stError {
+        border-left: 6px solid #C62828;
+        background-color: #FFEBEE;
+    }
+    div.stWarning {
+        border-left: 6px solid #EF6C00;
+        background-color: #FFF3E0;
     }
     </style>
 """, unsafe_allow_html=True)
 
 # ==============================================================================
-# 2. DATA & ARCHITECTURE (UNCHANGED)
+# 2. DATA & ARCHITECTURE
 # ==============================================================================
 
 CLASS_NAMES = [
@@ -163,50 +155,72 @@ def load_model():
 model = load_model()
 
 # ==============================================================================
-# 3. MAIN APPLICATION UI
+# 3. SESSION STATE MANAGEMENT (MULTI-PAGE LOGIC)
 # ==============================================================================
+if 'page' not in st.session_state:
+    st.session_state.page = 'home'
+if 'uploaded_image' not in st.session_state:
+    st.session_state.uploaded_image = None
+if 'prediction' not in st.session_state:
+    st.session_state.prediction = None
 
-# --- Sidebar ---
-with st.sidebar:
-    st.image("https://img.icons8.com/color/96/000000/microscope.png", width=70)
-    st.markdown("## Edge-ViT System")
-    st.markdown("---")
-    st.success("**System Status: Online** 🟢")
-    st.markdown("""
-    ### **User Guide**
-    1.  **Upload** a clear leaf image.
-    2.  Click **'RUN DIAGNOSIS'**.
-    3.  Review the **AI Analysis**.
-    """)
-    st.markdown("---")
-    st.caption("v1.3.0 Gradient Theme | PyTorch")
+def navigate_to(page):
+    st.session_state.page = page
 
-# --- Main Content ---
-st.title("🌿 Intelligent Crop Disease Diagnosis")
-st.markdown("#### Precision Agriculture using Saliency-Guided AI")
-st.write("This professional tool uses computer vision to detect plant pathology. Upload a sample to begin analysis.")
+# ==============================================================================
+# 4. PAGE 1: HOME (UPLOAD)
+# ==============================================================================
+def render_home():
+    st.title("🌿 Intelligent Crop Disease Diagnosis")
+    st.markdown("#### Precision Agriculture using Saliency-Guided AI")
+    st.write("Upload a specimen below. The system will analyze pathology using Edge-ViT.")
 
-# Layout: Two columns (Upload Left, Result Right)
-col_input, col_result = st.columns([1, 1.2], gap="large")
-
-with col_input:
-    # Creating a visible card for input
-    st.markdown('<div style="background-color: rgba(255,255,255,0.7); padding: 20px; border-radius: 15px; border: 1px solid #E3F2FD;">', unsafe_allow_html=True)
-    st.markdown("### 1. Specimen Input")
-    st.write("Upload a JPG/PNG image of the affected leaf.")
-    uploaded_file = st.file_uploader("Choose File", type=["jpg", "png", "jpeg"], label_visibility="collapsed")
-
-    if uploaded_file:
-        image = Image.open(uploaded_file).convert('RGB')
-        # Professional Image Frame
-        st.markdown(
-            f'<div style="border-radius: 12px; overflow: hidden; border: 4px solid #FFFFFF; box-shadow: 0 8px 16px rgba(0,0,0,0.1);">',
-            unsafe_allow_html=True
-        )
-        st.image(image, caption='Source Specimen', use_container_width=True)
-        st.markdown('</div>', unsafe_allow_html=True)
+    # Centered Input Card
+    col1, col2, col3 = st.columns([1, 2, 1])
+    
+    with col2:
+        st.markdown('<div style="background-color: rgba(255,255,255,0.8); padding: 30px; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">', unsafe_allow_html=True)
+        st.markdown("### 📤 Upload Specimen")
+        uploaded_file = st.file_uploader("Choose File", type=["jpg", "png", "jpeg"], label_visibility="collapsed")
         
-        # Preprocessing
+        if uploaded_file:
+            image = Image.open(uploaded_file).convert('RGB')
+            st.session_state.uploaded_image = image
+            
+            # Preview
+            st.markdown(
+                f'<div style="border-radius: 12px; overflow: hidden; border: 2px solid #C8E6C9; margin-top: 10px;">',
+                unsafe_allow_html=True
+            )
+            st.image(image, caption='Specimen Preview', use_container_width=True)
+            st.markdown('</div>', unsafe_allow_html=True)
+            
+            st.markdown("<br>", unsafe_allow_html=True)
+            if st.button("🚀 RUN DIAGNOSIS"):
+                navigate_to('result')
+                st.rerun() # Force reload to show result page
+                
+        st.markdown('</div>', unsafe_allow_html=True)
+
+# ==============================================================================
+# 5. PAGE 2: RESULT REPORT
+# ==============================================================================
+def render_result():
+    st.title("📊 Diagnostic Report")
+    
+    # Back Button (Top Left)
+    if st.button("⬅️ Analyze Another Sample"):
+        navigate_to('home')
+        st.session_state.uploaded_image = None
+        st.rerun()
+
+    image = st.session_state.uploaded_image
+    
+    if image is not None:
+        # Layout: Side by Side
+        col_viz, col_data = st.columns([1, 1], gap="large")
+        
+        # --- INFERENCE ---
         transform = transforms.Compose([
             transforms.Resize((224, 224)),
             transforms.ToTensor(),
@@ -214,82 +228,86 @@ with col_input:
         ])
         input_tensor = transform(image).unsqueeze(0)
         
-        st.markdown("<br>", unsafe_allow_html=True)
-        run_btn = st.button("🚀 RUN DIAGNOSIS", type="primary")
-    st.markdown('</div>', unsafe_allow_html=True) # End Input Card
+        with torch.no_grad():
+            logits, attn_maps = model(input_tensor)
+            probs = torch.nn.functional.softmax(logits, dim=1)
+            conf, pred_idx = torch.max(probs, 1)
 
-# --- Inference Logic ---
-if uploaded_file and run_btn:
-    with col_result:
-        # Creating a visible card for results
-        st.markdown('<div style="background-color: rgba(255,255,255,0.7); padding: 20px; border-radius: 15px; border: 1px solid #E3F2FD;">', unsafe_allow_html=True)
-        st.markdown("### 2. Analysis Report")
-        
-        with st.spinner("🧠 AI Model is processing..."):
-            with torch.no_grad():
-                logits, attn_maps = model(input_tensor)
-                probs = torch.nn.functional.softmax(logits, dim=1)
-                conf, pred_idx = torch.max(probs, 1)
-            
-            # --- Logic ---
-            confidence_score = conf.item()
-            raw_class_name = CLASS_NAMES[pred_idx.item()]
-            readable_name = raw_class_name.replace("___", " - ").replace("_", " ")
-            
-            is_healthy = "healthy" in readable_name.lower()
-            is_unknown = confidence_score < 0.50
-            
-            heatmap = cv2.resize(attn_maps[0, 0].numpy(), (224, 224))
-            heatmap = (heatmap - heatmap.min()) / (heatmap.max() - heatmap.min() + 1e-8)
-            
-            if is_healthy:
-                status_color = "#2E7D32" # Dark Green
-                bg_color = "#E8F5E9"
-                icon = "✅"
-                title = "Healthy Specimen"
-                msg = f"Confidence: **{confidence_score*100:.1f}%**"
-                overlay = np.array(image.resize((224, 224))) / 255.0
-                caption = "Visualization: Clear Leaf Surface"
-                
-            elif is_unknown:
-                status_color = "#C62828" # Red
-                bg_color = "#FFEBEE"
-                icon = "❓"
-                title = "Unknown / Anomaly"
-                msg = "Confidence below 50%. Inconclusive result."
-                overlay = np.array(image.resize((224, 224))) / 255.0
-                caption = "Visualization: Suppressed"
-                
-            else:
-                status_color = "#EF6C00" # Orange
-                bg_color = "#FFF3E0"
-                icon = "⚠️"
-                title = f"{readable_name}"
-                msg = f"Confidence: **{confidence_score*100:.1f}%**"
-                
-                # Heatmap
-                heatmap_c = cv2.applyColorMap(np.uint8(255 * heatmap), cv2.COLORMAP_JET)
-                heatmap_c = cv2.cvtColor(heatmap_c, cv2.COLOR_BGR2RGB) / 255.0
-                original_np = np.array(image.resize((224, 224))) / 255.0
-                overlay = 0.6 * original_np + 0.4 * heatmap_c
-                caption = "Saliency Map: Red Indicates Pathology"
+        # Logic
+        confidence_score = conf.item()
+        raw_class_name = CLASS_NAMES[pred_idx.item()]
+        readable_name = raw_class_name.replace("___", " - ").replace("_", " ")
+        is_healthy = "healthy" in readable_name.lower()
+        is_unknown = confidence_score < 0.50
 
-            # --- Custom Result Box ---
+        # Heatmap Gen
+        heatmap = cv2.resize(attn_maps[0, 0].numpy(), (224, 224))
+        heatmap = (heatmap - heatmap.min()) / (heatmap.max() - heatmap.min() + 1e-8)
+
+        if is_healthy:
+            status_color = "#2E7D32" # Dark Green
+            bg_color = "#E8F5E9"
+            icon = "✅"
+            title = "Healthy Specimen"
+            msg = f"High confidence ({confidence_score*100:.1f}%) of plant health."
+            overlay = np.array(image.resize((224, 224))) / 255.0
+            caption = "Visualization: Clear Leaf Surface"
+        elif is_unknown:
+            status_color = "#C62828" # Red
+            bg_color = "#FFEBEE"
+            icon = "❓"
+            title = "Inconclusive Result"
+            msg = "Confidence below 50%. This may be a non-plant image."
+            overlay = np.array(image.resize((224, 224))) / 255.0
+            caption = "Visualization: Suppressed"
+        else:
+            status_color = "#EF6C00" # Orange
+            bg_color = "#FFF3E0"
+            icon = "⚠️"
+            title = f"{readable_name}"
+            msg = f"Pathology detected with **{confidence_score*100:.1f}% confidence**."
+            
+            heatmap_c = cv2.applyColorMap(np.uint8(255 * heatmap), cv2.COLORMAP_JET)
+            heatmap_c = cv2.cvtColor(heatmap_c, cv2.COLOR_BGR2RGB) / 255.0
+            original_np = np.array(image.resize((224, 224))) / 255.0
+            overlay = 0.6 * original_np + 0.4 * heatmap_c
+            caption = "Saliency Map: Red Indicates Infection"
+
+        # --- RIGHT COLUMN: DETAILS ---
+        with col_data:
             st.markdown(f"""
-            <div style="background-color: {bg_color}; border-left: 6px solid {status_color}; padding: 15px; border-radius: 5px;">
-                <h3 style="color: {status_color} !important; margin: 0;">{icon} {title}</h3>
-                <p style="margin: 5px 0 0 0; color: #333 !important;">{msg}</p>
+            <div style="background-color: {bg_color}; border-left: 8px solid {status_color}; padding: 20px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
+                <h2 style="color: {status_color} !important; margin: 0;">{icon} {title}</h2>
+                <p style="font-size: 1.2rem; margin-top: 10px; color: #333 !important;">{msg}</p>
             </div>
             """, unsafe_allow_html=True)
             
-            st.markdown("<br>", unsafe_allow_html=True)
-            
-            # --- Display Visual ---
-            st.markdown(
-                f'<div style="border-radius: 12px; overflow: hidden; border: 3px solid {status_color}; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">',
-                unsafe_allow_html=True
-            )
-            st.image(overlay, caption=caption, use_container_width=True)
+            st.markdown("### 📋 Recommendations")
+            if is_healthy:
+                st.success("No action needed. Continue standard care.")
+            elif is_unknown:
+                st.error("Please re-upload a clearer image of a single leaf.")
+            else:
+                st.warning(f"Isolate the affected plant immediately to prevent spread of **{readable_name.split('-')[-1]}**.")
+                
+            with st.expander("🔬 View Latent Features"):
+                st.json({
+                    "Class ID": pred_idx.item(),
+                    "Backbone": "MobileViT-XS",
+                    "Attention Score": f"{heatmap.mean():.4f}"
+                })
+
+        # --- LEFT COLUMN: VISUALS ---
+        with col_viz:
+            st.markdown(f'<div style="background-color: white; padding: 15px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.1);">', unsafe_allow_html=True)
+            st.markdown(f"**{caption}**")
+            st.image(overlay, use_container_width=True)
             st.markdown('</div>', unsafe_allow_html=True)
-            
-        st.markdown('</div>', unsafe_allow_html=True) # End Result Card
+
+# ==============================================================================
+# 6. APP ROUTER
+# ==============================================================================
+if st.session_state.page == 'home':
+    render_home()
+elif st.session_state.page == 'result':
+    render_result()
