@@ -9,7 +9,7 @@ import timm
 import os
 
 # ==============================================================================
-# 1. CONFIGURATION & PROFESSIONAL THEME
+# 1. CONFIGURATION & PROFESSIONAL GRADIENT THEME
 # ==============================================================================
 st.set_page_config(
     page_title="Edge-ViT Diagnosis",
@@ -18,81 +18,82 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Custom CSS for Professional Green/White Theme with "Agile" Buttons
+# Custom CSS for Gradient Theme + High Contrast Text
 st.markdown("""
     <style>
-    /* Main Background & Default Text */
+    /* 1. MAIN BACKGROUND: Blue-White Gradient */
     .stApp {
-        background-color: #FFFFFF;
-        color: #424242;
-        font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        background: linear-gradient(to bottom, #E3F2FD, #FFFFFF);
+        background-attachment: fixed;
     }
     
-    /* Headers - Clean Dark Green */
+    /* 2. TEXT VISIBILITY FIXED: Force Dark Colors */
     h1, h2, h3, h4, h5, h6 {
-        color: #1B5E20 !important;
+        color: #0D47A1 !important; /* Professional Navy Blue Headers */
+        font-family: 'Segoe UI', sans-serif;
         font-weight: 700;
-        letter-spacing: -0.5px;
+        text-shadow: 1px 1px 2px rgba(255,255,255,0.5); /* Slight glow for readability */
     }
     
-    /* AGILE BUTTON STYLE - The Action Button */
-    /* Vibrant Green Gradient for high visibility */
+    p, label, .stMarkdown, li, .stCaption {
+        color: #263238 !important; /* Dark Charcoal for reading */
+        font-size: 1.05rem !important;
+        font-weight: 500;
+    }
+
+    /* 3. CARDS (Glassmorphism Effect) */
+    /* Used for Image Upload & Result Areas to make them pop */
+    .css-1r6slb0, .css-12oz5g7 { 
+        background-color: rgba(255, 255, 255, 0.85);
+        border-radius: 15px;
+        padding: 20px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    }
+    
+    /* 4. AGILE BUTTON STYLE (Vibrant Green) */
     .stButton>button {
         background: linear-gradient(45deg, #43A047, #2E7D32); 
-        color: white;
-        border-radius: 8px;
+        color: white !important;
+        border-radius: 10px;
         height: 3.5em;
         width: 100%;
         border: none;
-        font-weight: 700;
+        font-weight: 800;
         font-size: 1.2em;
         text-transform: uppercase;
         letter-spacing: 1px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 5px 15px rgba(46, 125, 50, 0.3);
         transition: all 0.3s ease;
     }
-    
-    /* Hover Effect - Lift and Brighten */
     .stButton>button:hover {
         background: linear-gradient(45deg, #66BB6A, #43A047);
-        box-shadow: 0 6px 12px rgba(67, 160, 71, 0.3);
-        transform: translateY(-2px);
-        border: none;
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(46, 125, 50, 0.4);
+        color: white !important;
+    }
+
+    /* 5. SIDEBAR STYLING */
+    section[data-testid="stSidebar"] {
+        background-color: #F8FAFB; /* Very Light Grey/Blue */
+        border-right: 1px solid #CFD8DC;
+    }
+    section[data-testid="stSidebar"] p, section[data-testid="stSidebar"] li {
+        color: #37474F !important;
+        font-size: 0.95rem !important;
     }
     
-    /* Active/Click Effect */
-    .stButton>button:active {
-        transform: translateY(1px);
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-
-    /* Info/Success/Warning Boxes */
-    .stSuccess, .stInfo {
-        background-color: #F1F8E9; /* Very Light Green */
-        border-left: 5px solid #43A047; /* Match Button Green */
-        color: #1B5E20;
-    }
-    .stWarning {
-        background-color: #FFF8E1;
-        border-left: 5px solid #FFB300;
-        color: #E65100;
-    }
-    .stError {
-        background-color: #FFEBEE;
-        border-left: 5px solid #E53935;
-        color: #B71C1C;
-    }
-
-    /* Sidebar Styling */
-    section[data-testid="stSidebar"] {
-        background-color: #FAFAFA;
-        border-right: 1px solid #E0E0E0;
+    /* 6. UPLOAD BOX STYLING */
+    [data-testid='stFileUploader'] {
+        background-color: rgba(255, 255, 255, 0.9);
+        border: 2px dashed #90CAF9;
+        border-radius: 12px;
+        padding: 20px;
     }
     </style>
 """, unsafe_allow_html=True)
 
 # ==============================================================================
-# 2. DATA & ARCHITECTURE
+# 2. DATA & ARCHITECTURE (UNCHANGED)
 # ==============================================================================
 
 CLASS_NAMES = [
@@ -136,14 +137,10 @@ class EdgeViT_FSL(nn.Module):
         logits = self.classifier(self.pool(refined).flatten(1))
         return logits, attn_map
 
-# ==============================================================================
-# 3. MODEL LOADING
-# ==============================================================================
 @st.cache_resource
 def load_model():
     device = torch.device('cpu') 
     model = EdgeViT_FSL(num_classes=38) 
-    
     possible_names = ["best_edge_vit_final.pth", "best_edge_vit.pth"]
     model_path = None
     for name in possible_names:
@@ -166,45 +163,47 @@ def load_model():
 model = load_model()
 
 # ==============================================================================
-# 4. MAIN APPLICATION UI
+# 3. MAIN APPLICATION UI
 # ==============================================================================
 
 # --- Sidebar ---
 with st.sidebar:
-    st.image("https://img.icons8.com/color/96/000000/leaf.png", width=80)
-    st.title("Edge-ViT System")
+    st.image("https://img.icons8.com/color/96/000000/microscope.png", width=70)
+    st.markdown("## Edge-ViT System")
     st.markdown("---")
-    st.info("**Status:** 🟢 System Online")
+    st.success("**System Status: Online** 🟢")
     st.markdown("""
-    ### **How to use:**
-    1.  **Upload** a clear image of a crop leaf.
-    2.  Click the **'RUN DIAGNOSIS'** button.
-    3.  View the **prediction** and AI **heatmap**.
+    ### **User Guide**
+    1.  **Upload** a clear leaf image.
+    2.  Click **'RUN DIAGNOSIS'**.
+    3.  Review the **AI Analysis**.
     """)
     st.markdown("---")
-    st.caption("v1.2.0 Agile Theme | Powered by MobileViT & PyTorch")
+    st.caption("v1.3.0 Gradient Theme | PyTorch")
 
 # --- Main Content ---
 st.title("🌿 Intelligent Crop Disease Diagnosis")
-st.markdown("#### Rapid Identification using Saliency-Guided Few-Shot Learning")
-st.write("This professional system uses advanced AI to identify plant diseases and visually highlight infected regions for precise diagnostics.")
+st.markdown("#### Precision Agriculture using Saliency-Guided AI")
+st.write("This professional tool uses computer vision to detect plant pathology. Upload a sample to begin analysis.")
 
 # Layout: Two columns (Upload Left, Result Right)
 col_input, col_result = st.columns([1, 1.2], gap="large")
 
 with col_input:
-    st.markdown("### 1. Image Input")
-    st.write("Please upload a high-quality JPG or PNG image of a single leaf.")
+    # Creating a visible card for input
+    st.markdown('<div style="background-color: rgba(255,255,255,0.7); padding: 20px; border-radius: 15px; border: 1px solid #E3F2FD;">', unsafe_allow_html=True)
+    st.markdown("### 1. Specimen Input")
+    st.write("Upload a JPG/PNG image of the affected leaf.")
     uploaded_file = st.file_uploader("Choose File", type=["jpg", "png", "jpeg"], label_visibility="collapsed")
 
     if uploaded_file:
         image = Image.open(uploaded_file).convert('RGB')
-        # Rounded corners with subtle border for image
+        # Professional Image Frame
         st.markdown(
-            f'<div style="border-radius: 12px; overflow: hidden; border: 3px solid #C8E6C9; box-shadow: 0 4px 8px rgba(0,0,0,0.05);">',
+            f'<div style="border-radius: 12px; overflow: hidden; border: 4px solid #FFFFFF; box-shadow: 0 8px 16px rgba(0,0,0,0.1);">',
             unsafe_allow_html=True
         )
-        st.image(image, caption='Source Image Preview', use_container_width=True)
+        st.image(image, caption='Source Specimen', use_container_width=True)
         st.markdown('</div>', unsafe_allow_html=True)
         
         # Preprocessing
@@ -215,16 +214,18 @@ with col_input:
         ])
         input_tensor = transform(image).unsqueeze(0)
         
-        st.markdown("<br>", unsafe_allow_html=True) # Spacer
-        # ACTION BUTTON
+        st.markdown("<br>", unsafe_allow_html=True)
         run_btn = st.button("🚀 RUN DIAGNOSIS", type="primary")
+    st.markdown('</div>', unsafe_allow_html=True) # End Input Card
 
 # --- Inference Logic ---
 if uploaded_file and run_btn:
     with col_result:
-        st.markdown("### 2. Diagnostic Report")
+        # Creating a visible card for results
+        st.markdown('<div style="background-color: rgba(255,255,255,0.7); padding: 20px; border-radius: 15px; border: 1px solid #E3F2FD;">', unsafe_allow_html=True)
+        st.markdown("### 2. Analysis Report")
         
-        with st.spinner("🧠 AI Model is analyzing leaf pathology..."):
+        with st.spinner("🧠 AI Model is processing..."):
             with torch.no_grad():
                 logits, attn_maps = model(input_tensor)
                 probs = torch.nn.functional.softmax(logits, dim=1)
@@ -235,7 +236,6 @@ if uploaded_file and run_btn:
             raw_class_name = CLASS_NAMES[pred_idx.item()]
             readable_name = raw_class_name.replace("___", " - ").replace("_", " ")
             
-            # --- SMART VISUALIZATION TOGGLE ---
             is_healthy = "healthy" in readable_name.lower()
             is_unknown = confidence_score < 0.50
             
@@ -243,54 +243,53 @@ if uploaded_file and run_btn:
             heatmap = (heatmap - heatmap.min()) / (heatmap.max() - heatmap.min() + 1e-8)
             
             if is_healthy:
-                status_color = "success"
-                result_title = "Healthy Plant"
-                msg = f"The assessment indicates a **healthy** plant with a high confidence of **{confidence_score*100:.1f}%**."
+                status_color = "#2E7D32" # Dark Green
+                bg_color = "#E8F5E9"
+                icon = "✅"
+                title = "Healthy Specimen"
+                msg = f"Confidence: **{confidence_score*100:.1f}%**"
                 overlay = np.array(image.resize((224, 224))) / 255.0
-                caption = "Visualization: Clean Leaf (No pathology detected)"
+                caption = "Visualization: Clear Leaf Surface"
                 
             elif is_unknown:
-                status_color = "error"
-                result_title = "Unknown / Anomaly"
-                msg = "Confidence is below the threshold for a reliable diagnosis. This may be a non-plant image or an unknown condition."
+                status_color = "#C62828" # Red
+                bg_color = "#FFEBEE"
+                icon = "❓"
+                title = "Unknown / Anomaly"
+                msg = "Confidence below 50%. Inconclusive result."
                 overlay = np.array(image.resize((224, 224))) / 255.0
-                caption = "Visualization: Heatmap suppressed due to low confidence."
+                caption = "Visualization: Suppressed"
                 
             else:
-                status_color = "warning"
-                result_title = f"Detected: {readable_name}"
-                msg = f"The model has identified signs of **{readable_name}** with **{confidence_score*100:.1f}% confidence**."
+                status_color = "#EF6C00" # Orange
+                bg_color = "#FFF3E0"
+                icon = "⚠️"
+                title = f"{readable_name}"
+                msg = f"Confidence: **{confidence_score*100:.1f}%**"
                 
-                # Create Heatmap Overlay
+                # Heatmap
                 heatmap_c = cv2.applyColorMap(np.uint8(255 * heatmap), cv2.COLORMAP_JET)
                 heatmap_c = cv2.cvtColor(heatmap_c, cv2.COLOR_BGR2RGB) / 255.0
                 original_np = np.array(image.resize((224, 224))) / 255.0
                 overlay = 0.6 * original_np + 0.4 * heatmap_c
-                caption = "Visualization: Saliency Heatmap (Red indicates primary infection sites)"
+                caption = "Saliency Map: Red Indicates Pathology"
 
-            # --- Display Result Box ---
-            if status_color == "success":
-                st.success(f"## ✅ {result_title}\n\n{msg}")
-            elif status_color == "warning":
-                st.warning(f"## ⚠️ {result_title}\n\n{msg}")
-            else:
-                st.error(f"## ❓ {result_title}\n\n{msg}")
+            # --- Custom Result Box ---
+            st.markdown(f"""
+            <div style="background-color: {bg_color}; border-left: 6px solid {status_color}; padding: 15px; border-radius: 5px;">
+                <h3 style="color: {status_color} !important; margin: 0;">{icon} {title}</h3>
+                <p style="margin: 5px 0 0 0; color: #333 !important;">{msg}</p>
+            </div>
+            """, unsafe_allow_html=True)
+            
+            st.markdown("<br>", unsafe_allow_html=True)
             
             # --- Display Visual ---
             st.markdown(
-                f'<div style="border-radius: 12px; overflow: hidden; border: 3px solid #{ "43A047" if status_color=="success" else "FFB300" if status_color=="warning" else "E53935" }; box-shadow: 0 4px 8px rgba(0,0,0,0.05); margin-top: 20px;">',
+                f'<div style="border-radius: 12px; overflow: hidden; border: 3px solid {status_color}; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">',
                 unsafe_allow_html=True
             )
             st.image(overlay, caption=caption, use_container_width=True)
             st.markdown('</div>', unsafe_allow_html=True)
             
-            # --- Technical details (Collapsed) ---
-            st.markdown("<br>", unsafe_allow_html=True)
-            with st.expander("View Technical Model Details"):
-                st.json({
-                    "Model Architecture": "Edge-ViT-FSL (MobileViT-XS Backbone)",
-                    "Predicted Class ID": pred_idx.item(),
-                    "Raw Confidence Score": f"{confidence_score:.4f}",
-                    "Inference Engine": "PyTorch CPU (Optimized for Edge)",
-                    "Saliency Module": "Active (Sigmoid Activation)"
-                })
+        st.markdown('</div>', unsafe_allow_html=True) # End Result Card
