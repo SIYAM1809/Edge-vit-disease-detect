@@ -15,8 +15,9 @@
 ## 🖥️ Interface Preview
 The system provides real-time inference with **Explainable AI (XAI)**, overlaying a saliency heatmap to visualize the specific lesions driving the diagnosis.
 
-![App Interface Demo](assets/app_interface.png)
-*Figure 1: The Streamlit interface demonstrating a successful diagnosis with real-time attention mapping.*
+![App Interface Demo](App Demo/Agri_img1.png)
+![App Interface Demo](App Demo/aAgri_img2.png)
+
 
 ---
 
