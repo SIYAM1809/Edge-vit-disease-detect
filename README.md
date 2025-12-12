@@ -1,4 +1,4 @@
-# Edge-vit-disease-detect# 🌱 Edge-ViT-FSL: Cross-Domain Crop Disease Diagnosis
+🌱 Edge-ViT-FSL: Cross-Domain Crop Disease Diagnosis
 
 [![Python](https://img.shields.io/badge/Python-3.9%2B-blue)](https://www.python.org/)
 [![PyTorch](https://img.shields.io/badge/PyTorch-2.0-red)](https://pytorch.org/)
