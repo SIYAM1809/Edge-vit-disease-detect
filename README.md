@@ -13,11 +13,15 @@
 ---
 
 ## 🖥️ Interface Preview
-The system provides real-time inference with **Explainable AI (XAI)**, overlaying a saliency heatmap to visualize the specific lesions driving the diagnosis.
+The system provides real-time inference with **Explainable AI (XAI)**. The interface allows users to upload "wild" leaf images and instantly receive a diagnosis overlaid with a saliency heatmap, visualizing the specific lesions driving the AI's decision.
 
-![App Interface Demo](App Demo/Agri_img1.png)
-![App Interface Demo](App Demo/aAgri_img2.png)
+<p align="center">
+  <img src="App Demo/Agri_img1.png" width="45%" alt="App Interface Input"/>
+  &nbsp; &nbsp;
+  <img src="App Demo/Agri_img2.png" width="45%" alt="App Interface Result"/>
+</p>
 
+*Figure 1: The Streamlit interface workflow. Left: Image upload screen. Right: Real-time diagnosis showing the predicted class and AI attention heatmap.*
 
 ---
 
